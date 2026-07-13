@@ -26,6 +26,14 @@ class GPSUMap(app.App):
         self.HTTP_SEND_MIN_INTERVAL_MS = 15000   # 15 seconds
         self.LAST_HTTP_SEND = 0
 
+        # QR setup
+        self.TARGET_SIZE = 140
+        self.NATIVE_SIZE = 25
+
+        # Center target dimensions within the -120 to +120 screen area
+        self.START_X = -self.TARGET_SIZE // 2  # -70
+        self.START_Y = -self.TARGET_SIZE // 2  # -70
+
         self.username = settings.get("name") or "Unknown"
         print("Badge user:", self.username)
         
@@ -63,9 +71,38 @@ class GPSUMap(app.App):
         eventbus.on(ButtonDownEvent, self._handle_buttondown, self)
         eventbus.on(ButtonUpEvent, self._handle_buttonup, self)
 
+    def load_qr(self):
+        self.native_qr = [
+            [1,1,1,1,1,1,1,0,0,0,1,0,1,0,0,0,1,0,1,1,1,1,1,1,1],            
+            [1,0,0,0,0,0,1,0,1,0,1,0,0,1,1,1,0,0,1,0,0,0,0,0,1],            
+            [1,0,1,1,1,0,1,0,0,0,0,0,1,1,0,0,1,0,1,0,1,1,1,0,1],            
+            [1,0,1,1,1,0,1,0,1,1,1,0,1,1,1,1,0,0,1,0,1,1,1,0,1],            
+            [1,0,1,1,1,0,1,0,0,1,0,0,0,0,1,0,1,0,1,0,1,1,1,0,1],            
+            [1,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1],            
+            [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],            
+            [0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0],            
+            [1,1,1,1,1,0,1,1,1,1,0,1,0,0,0,1,1,1,0,1,0,1,0,1,0],
+            [1,1,0,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,0,1,0,0,0,1,1],            
+            [1,0,0,1,0,0,1,0,1,0,1,0,0,1,1,0,0,1,1,0,1,1,1,1,0],            
+            [0,1,0,1,1,1,0,0,0,0,0,0,1,1,0,0,1,0,0,1,0,1,0,0,0],            
+            [0,1,0,0,1,0,1,0,0,1,1,0,1,0,1,1,0,0,1,1,0,0,0,1,1],            
+            [1,0,0,1,1,1,0,0,1,0,0,0,0,0,0,0,1,1,0,1,1,0,0,1,1],            
+            [1,0,0,0,0,1,1,1,0,0,1,1,1,0,0,0,0,1,1,0,1,0,1,0,1],            
+            [1,0,1,0,0,1,0,0,0,1,1,1,0,0,1,0,0,0,0,1,0,1,0,1,1],            
+            [1,0,1,1,0,0,1,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,0,0,1],
+            [0,0,0,0,0,0,0,0,1,0,1,0,1,1,1,1,1,0,0,0,1,0,0,0,1],            
+            [1,1,1,1,1,1,1,0,1,0,0,0,0,1,1,1,1,0,1,0,1,0,1,1,1],            
+            [1,0,0,0,0,0,1,0,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0],            
+            [1,0,1,1,1,0,1,0,1,1,0,0,1,0,1,1,1,1,1,1,1,0,1,0,0],            
+            [1,0,1,1,1,0,1,0,1,1,1,0,0,0,0,0,1,0,1,1,0,1,0,1,1],            
+            [1,0,1,1,1,0,1,0,1,0,0,1,1,0,0,0,0,1,1,1,0,1,1,0,1],            
+            [1,0,0,0,0,0,1,0,1,0,1,1,0,0,1,0,0,1,1,0,1,0,1,1,0],            
+            [1,1,1,1,1,1,1,0,1,1,1,1,0,0,0,0,1,0,0,1,0,1,1,1,1]
+        ]
+
     def sync_time(self):
         try:
-            ntptime.settime()   # sets RTC to UTC
+            ntptime.settime()
             return True
         except Exception as e:
             print("NTP failed:", e)
@@ -88,8 +125,7 @@ class GPSUMap(app.App):
             print("Right Button Down")
             self.button_states.clear()
 
-        if BUTTON_TYPES["DOWN"] in event.button:
-            self.close_app()
+        if BUTTON_TYPES["DOWN"] in event.button:            
             self.button_states.clear()
 
         if BUTTON_TYPES["CANCEL"] in event.button:
@@ -113,8 +149,7 @@ class GPSUMap(app.App):
         # alternate every 1 second
         return (time.ticks_ms() // 1000) % 2
 
-    def maps_api_call(self,pos,speed,bearing,forced,use_test_data):
-        # IF FIXED
+    def maps_api_call(self,pos,speed,bearing,forced,use_test_data):        
         
         if use_test_data:
             lat = 52
@@ -265,10 +300,31 @@ class GPSUMap(app.App):
     def update(self, delta):
         pass
 
+    def display_qr(self, ctx):
+        ctx.rgb(1.0, 1.0, 1.0).rectangle(-120, -120, 240, 240).fill()
+        
+        self.load_qr()
+        
+        # Direct pixel transformation loop using your requested method injection chaining
+        for r in range(self.TARGET_SIZE):
+            source_r = int(r * self.NATIVE_SIZE / self.TARGET_SIZE)
+            y_pos = self.START_Y + r
+            
+            for c in range(self.TARGET_SIZE):
+                source_c = int(c * self.NATIVE_SIZE / self.TARGET_SIZE)
+                x_pos = self.START_X + c
+                
+                # Assign 0.0 for black modules, 1.0 for white modules (Tildagon color standard)
+                if self.native_qr[source_r][source_c] == 1:
+                    ctx.rgb(0.0, 0.0, 0.0).rectangle(x_pos, y_pos, 1, 1).fill()
+                else:
+                    ctx.rgb(1.0, 1.0, 1.0).rectangle(x_pos, y_pos, 1, 1).fill()
+        return
+
     def draw(self, ctx):
 
-        ctx.rgb(0, 0.2, 0).rectangle(-120, -120, 240, 240).fill()
-                        
+        ctx.rgb(0, 0.2, 0).rectangle(-120, -120, 240, 240).fill()                       
+
         if not self.gps:
             ctx.rgb(1, 0, 0)
             ctx.move_to(-100, 0).text("No GPS")
@@ -284,25 +340,34 @@ class GPSUMap(app.App):
             ctx.move_to(-100, 0).text("GPS Syncing...")
             return
 
-        ctx.rgb(0, 1, 0)
-
+        self.display_qr(ctx)
         lat, lon = self.last_position
 
-        ctx.move_to(-110, -40).text(
-            "Lat: %.5f" % lat
-        )
+        ctx.rgb(1, 0, 0)
+        ctx.move_to(-95, -60).text("-")
+    
+        if self.flasher():
+            ctx.rgb(0, 1, 0)
+        else:
+            ctx.rgb(0, 0.75, 0)
+        ctx.move_to(-55, 100).text("Synced")            
+        return
 
-        ctx.move_to(-110, -10).text(
-            "Lon: %.5f" % lon
-        )
+        #ctx.move_to(-110, -40).text(
+        #    "Lat: %.5f" % lat
+        #)
 
-        ctx.move_to(-110, 20).text(
-            "Spd: %.1f kt" % self.last_speed
-        )
+        #ctx.move_to(-110, -10).text(
+        #    "Lon: %.5f" % lon
+        #)
 
-        ctx.move_to(-110, 50).text(
-            "Brg: %.0f" % self.last_bearing
-        )
+        #ctx.move_to(-110, 20).text(
+        #    "Spd: %.1f kt" % self.last_speed
+        #)
+
+        #ctx.move_to(-110, 50).text(
+        #    "Brg: %.0f" % self.last_bearing
+        #)
 
 
 __app_export__ = GPSUMap

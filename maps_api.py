@@ -7,7 +7,8 @@ class MapsAPI:
         self.base_url = base_url.rstrip("/")
         self.headers = {
             "X-API-Key": api_key,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "User-Agent": "Tildagon GPSUMap 0.0.1"
         }
 
     def _request(self, method, path, data=None):
