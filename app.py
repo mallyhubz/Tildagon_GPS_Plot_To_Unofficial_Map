@@ -19,10 +19,18 @@ api = maps_api.MapsAPI(
     "1b4ee1a37eed742f6b49bdda58abb28de4eda309ef8f6a120d90951f711918e7"
 )
 
+__app_export__ = {
+    "name": "GPSUMap",
+    "assets": {
+        "qr": "qr.png"
+    }
+}
+
 class GPSUMap(app.App):
 
     def __init__(self):
         
+        self.qr = self.assets["qr"]
         
         self.HTTP_SEND_MIN_INTERVAL_MS = 15000   # 15 seconds
         self.LAST_HTTP_SEND = 0
@@ -118,8 +126,8 @@ class GPSUMap(app.App):
         # IF FIXED
         
         if use_test_data:
-            lat = 52.1
-            lon = 1.11
+            lat = 52
+            lon = 1
         else:
             lat, lon = pos
         
@@ -269,6 +277,8 @@ class GPSUMap(app.App):
     def draw(self, ctx):
 
         ctx.rgb(0, 0.2, 0).rectangle(-120, -120, 240, 240).fill()
+        
+        ctx.image(self.qr, -70, -70)
                 
         if not self.gps:
             ctx.rgb(1, 0, 0)
