@@ -117,7 +117,7 @@ class GPSUMap(app.App):
     def _handle_buttondown(self, event: ButtonDownEvent):
         if BUTTON_TYPES["LEFT"] in event.button:
             print("Left Button Down")            
-            self.send_location(self.last_position, self.last_speed, self.last_bearing, 1)
+            self.send_location(self.last_position, self.last_speed, self.last_bearing,1)
             time.sleep(1)
             self.button_states.clear()
 
@@ -149,7 +149,7 @@ class GPSUMap(app.App):
         # alternate every 1 second
         return (time.ticks_ms() // 1000) % 2
 
-    def maps_api_call(self,pos,speed,bearing,forced,use_test_data):        
+    def maps_api_call(self,pos,speed,bearing,forced=0,use_test_data=0):        
         
         if use_test_data:
             lat = 52
@@ -167,12 +167,12 @@ class GPSUMap(app.App):
                 name=self.username,
                 latitude=lat,
                 longitude=lon,
-                description=self.username
+                description=""
             )
             
             # Check if the API call was a success
             if status == 201:
-                print("Update successful!")
+                print("Update successful for " + self.username)
                 settings.set("gpsumap_editkey",location["editToken"])
                 settings.save()
             else:
@@ -228,7 +228,7 @@ class GPSUMap(app.App):
                     np.write()
                 elif status == 200:
                     
-                    print("Updated")
+                    print("Updated for " + self.username)
                     
                     # flash a Neopixel LED Green
                     np[0] = (0, 255, 0)
@@ -249,7 +249,7 @@ class GPSUMap(app.App):
                                 
             else:
                 
-                print("Speed zero or key was invalid, not sending anything")
+                print("Speed zero, not sending anything")
         
         
         
@@ -265,7 +265,7 @@ class GPSUMap(app.App):
         if ( isinstance(pos, (tuple, list)) and len(pos) == 2 ):
             
             # position, speed, bearing, force_update, use_test_data
-            self.maps_api_call(pos,speed,bearing,0,0)
+            self.maps_api_call(pos,speed,bearing,forced,0)
                     
         else:
         
