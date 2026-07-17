@@ -23,7 +23,7 @@ class GPSUMap(app.App):
 
     def __init__(self):
                 
-        self.HTTP_SEND_MIN_INTERVAL_MS = 15000   # 15 seconds
+        self.HTTP_SEND_MIN_INTERVAL_MS = 5000   # 5 seconds
         self.LAST_HTTP_SEND = 0
 
         # QR setup

@@ -34,11 +34,7 @@ class MapsAPI:
             print("Request error")
 
         # Parse response
-        try:
-            result = resp.json()
-        except Exception:
-            result = resp.text
-            print("Parse error")
+        result = resp.json()  
 
         status = resp.status_code
         resp.close()
