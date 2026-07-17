@@ -1,6 +1,6 @@
 [app]
 # The name of your app as displayed in the menu
-name = "GPS 2Unofficial Map"
+name = "GPS 2 Unofficial Map"
 
 # The submenu where your app should appear.
 # One of: "Badge", "Music", "Media", "Apps", "Games"
@@ -18,7 +18,7 @@ category = "Apps"
 
 [entry]
 # The name of your entry point `Application` class
-# class = "GPSUmap"
+# class = "GPSUMap"
 
 [metadata]
 # Your nickname.  Must be at most 32 characters!
@@ -31,10 +31,10 @@ license = "LGPL-3.0-only"
 url = "https://github.com/mallyhubz/Tildagon_GPS_Plot_To_Unofficial_Map"
 
 # Description of your app.  Maximum 140 characters!
-description = "Send your GPS location for everyone at the Camp to see!"
+description = "Send your GPS location to the unofficial map"
 
 # Version number of your app.  If you push a commit where this number is
 # increased, we interpret this as a new version being released.
 #
 # Version number must be an integer!
-version = "3"
+version = "1.0"

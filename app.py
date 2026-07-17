@@ -39,16 +39,7 @@ class GPSUMap(app.App):
         
         self.gpsumap_editkey = settings.get("gpsumap_editkey") or ""
         print("Badge Location Edit Key:", self.gpsumap_editkey)
-
-        self.wlan = network.WLAN(network.STA_IF)
-
-        while not self.wlan.isconnected():
-            print("Connecting to network...")
-            time.sleep(1)
-
-        print("Connected! IP:", self.wlan.ifconfig()[0])
-        self.rssi = self.wlan.status('rssi')
-        
+       
         self.gps = get_app_by_vid_pid(0x7CAB, 0xBEAC)
 
         self.last_position = None
@@ -64,6 +55,15 @@ class GPSUMap(app.App):
             print("GPS Hexpansion found")
         else:
             print("GPS Hexpansion NOT found")
+
+        self.wlan = network.WLAN(network.STA_IF)
+
+        while not self.wlan.isconnected():
+            print("Connecting to network...")
+            time.sleep(1)
+
+        print("Connected! IP:", self.wlan.ifconfig()[0])
+        self.rssi = self.wlan.status('rssi')
 
         self.sync_time()
 
@@ -156,6 +156,10 @@ class GPSUMap(app.App):
             lon = 1
         else:
             lat, lon = pos
+        
+        while not self.wlan.isconnected():
+            print("Connecting to network...")
+            time.sleep(1)
         
         # If I dont have an edit key
             #  create a location and get an edit key
