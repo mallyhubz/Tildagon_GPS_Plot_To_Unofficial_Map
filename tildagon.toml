@@ -37,4 +37,4 @@ description = "Send your GPS location for everyone at the Camp to see!"
 # increased, we interpret this as a new version being released.
 #
 # Version number must be an integer!
-version = "1.0"
+version = "3"
