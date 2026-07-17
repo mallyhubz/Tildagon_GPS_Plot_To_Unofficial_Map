@@ -8,12 +8,11 @@ class MapsAPI:
         self.headers = {
             "X-API-Key": api_key,
             "Content-Type": "application/json",
-            "User-Agent": "Tildagon GPSUMap 0.0.4"
+            "User-Agent": "Tildagon GPSUMap 0.0.1"
         }
 
     def _request(self, method, path, data=None):
         url = self.base_url + path
-        resp = None
 
         try:
 
@@ -34,15 +33,13 @@ class MapsAPI:
         except Exception:
             print("Request error")
 
-        try:
-            # Parse response
-            result = resp.json()
-            status = resp.status_code
-            resp.close()
-            return status, result
-        except Exception:
-            print("Response error")
-            return 999, ""
+        # Parse response
+        result = resp.json()  
+
+        status = resp.status_code
+        resp.close()
+
+        return status, result
 
     # -------------------------
     # Locations
