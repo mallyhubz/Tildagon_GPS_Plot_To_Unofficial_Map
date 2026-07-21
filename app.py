@@ -175,6 +175,7 @@ class GPSUMap(app.App):
                 print("Update successful for " + self.username)
                 settings.set("gpsumap_editkey",location["editToken"])
                 settings.save()
+                self.gpsumap_editkey = location["editToken"]
             else:
                 print(f"HTTP: {status}")
                 np[0] = (255, 0, 0)
